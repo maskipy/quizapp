@@ -17,7 +17,7 @@ engine = create_async_engine(
 async_session_factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
-async def get_session() -> AsyncGenerator[AsyncSession, None]:
+async def get_session() -> AsyncGenerator[AsyncSession]:
     """FastAPI dependency: yields one DB session per request, closed automatically after."""
     async with async_session_factory() as session:
         yield session
