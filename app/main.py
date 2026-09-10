@@ -5,11 +5,15 @@ QuizApp API — entrypoint.
 
 from fastapi import FastAPI
 
+from app.api.routes import auth
+
 app = FastAPI(
     title="QuizApp API",
     description="Real-time quiz and flashcard platform for algorithm learning.",
     version="0.1.0",
 )
+
+app.include_router(auth.router)
 
 
 @app.get("/")
