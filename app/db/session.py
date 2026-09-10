@@ -3,7 +3,9 @@ Database engine and session management — async, via SQLAlchemy 2.0 + psycopg 3
 """
 
 from collections.abc import AsyncGenerator
+from typing import Annotated
 
+from fastapi import Depends
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -21,3 +23,6 @@ async def get_session() -> AsyncGenerator[AsyncSession]:
     """FastAPI dependency: yields one DB session per request, closed automatically after."""
     async with async_session_factory() as session:
         yield session
+
+
+SessionDep = Annotated[AsyncSession, Depends(get_session)]
