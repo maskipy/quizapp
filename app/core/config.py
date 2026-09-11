@@ -28,6 +28,9 @@ class Settings(BaseSettings):
     # including the environment and database URL.
     environment: str = "development"
     database_url: str = "postgresql+psycopg://quizapp:devpassword@localhost:5430/quizapp"
+    secret_key: str
+    algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
 
 
 # The get_settings function is decorated with lru_cache to cache the settings instance.
