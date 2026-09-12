@@ -1,15 +1,23 @@
 """
-Auth routes: registration
+Auth routes: registration and login.
 """
 
-from fastapi import APIRouter, HTTPException, status
-from sqlmodel import select
+from typing import Annotated
 
-from app.core.security import hash_password
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlmodel import SQLModel, select
+
+from app.core.security import create_access_token, hash_password, verify_password
 from app.db.session import SessionDep
 from app.models.user import User, UserCreate, UserPublic
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+
+class Token(SQLModel):
+    access_token: str
+    token_type: str = "bearer"
 
 
 @router.post("/register", response_model=UserPublic, status_code=status.HTTP_201_CREATED)
@@ -30,3 +38,24 @@ async def register(user_in: UserCreate, session: SessionDep) -> User:
     await session.commit()
     await session.refresh(user)
     return user
+
+
+@router.post("/login", response_model=Token)
+async def login(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    session: SessionDep,
+) -> Token:
+    # OAuth2PasswordRequestForm names the field "username" per the OAuth2 spec --
+    # we just treat whatever's typed in there as the email.
+    result = await session.exec(select(User).where(User.email == form_data.username))
+    user = result.first()
+
+    if user is None or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    access_token = create_access_token(subject=str(user.id))
+    return Token(access_token=access_token)
