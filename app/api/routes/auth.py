@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import SQLModel, select
 
+from app.api.deps import CurrentUser
 from app.core.security import create_access_token, hash_password, verify_password
 from app.db.session import SessionDep
 from app.models.user import User, UserCreate, UserPublic
@@ -59,3 +60,8 @@ async def login(
 
     access_token = create_access_token(subject=str(user.id))
     return Token(access_token=access_token)
+
+
+@router.get("/me", response_model=UserPublic)
+async def read_current_user(current_user: CurrentUser) -> User:
+    return current_user
