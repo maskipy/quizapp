@@ -8,11 +8,10 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlmodel import SQLModel
 
 from app.core.config import settings
-from app.models.deck import Card, Deck  # noqa: F401
 
 # Importing the model registers its table on SQLModel.metadata below.
 # Every new model file needs an import added here, or Alembic won't see it.
-from app.models.user import User  # noqa: F401
+from app.models import *  # noqa: F401,F403
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
