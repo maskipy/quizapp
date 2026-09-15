@@ -16,6 +16,8 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
     "ruff>=0.16.5",
 ]
 [tool.ruff]
@@ -30,3 +32,10 @@ select = ["E", "F", "I", "UP", "B"]  # pycodestyle, pyflakes, import sort, pyupg
 # imports and an import order we don't control. F401 (unused imports) stays
 # enabled here on purpose -- that one does catch real mistakes.
 "migrations/versions/*.py" = ["I001", "UP035", "UP007"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+# Puts the project root on sys.path so tests can `from app...` without
+# installing the package or fiddling with PYTHONPATH.
+pythonpath = ["."]
