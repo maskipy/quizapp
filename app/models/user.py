@@ -11,8 +11,12 @@ User models
 """
 
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
+
+if TYPE_CHECKING:
+    from app.models.deck import Deck
 
 
 def utcnow() -> datetime:
@@ -31,6 +35,10 @@ class User(UserBase, table=True):
     hashed_password: str
     is_active: bool = True
     created_at: datetime = Field(default_factory=utcnow)
+
+    decks: list["Deck"] = Relationship(
+        back_populates="owner", sa_relationship_kwargs={"lazy": "raise"}
+    )
 
 
 class UserCreate(UserBase):
