@@ -5,7 +5,7 @@ QuizApp API — entrypoint.
 
 from fastapi import FastAPI
 
-from app.api.routes import auth, decks
+from app.api.routes import auth, cards, decks
 
 app = FastAPI(
     title="QuizApp API",
@@ -15,6 +15,7 @@ app = FastAPI(
 
 app.include_router(auth.router)
 app.include_router(decks.router)
+app.include_router(cards.router)
 
 
 @app.get("/")
