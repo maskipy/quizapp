@@ -1,3 +1,7 @@
+"""
+Deck routes.
+"""
+
 from fastapi import APIRouter, Query, status
 from sqlalchemy import func
 from sqlmodel import SQLModel, select
@@ -18,6 +22,11 @@ class DeckPage(SQLModel):
 
 class DeckWithCards(DeckPublic):
     cards: list[CardPublic]
+
+
+class DeckUpdate(SQLModel):
+    title: str | None = None
+    description: str | None = None
 
 
 @router.post("", response_model=DeckPublic, status_code=status.HTTP_201_CREATED)
@@ -54,3 +63,26 @@ async def list_my_decks(
 @router.get("/{deck_id}", response_model=DeckWithCards)
 async def get_deck(deck_id: int, current_user: CurrentUser, session: SessionDep) -> Deck:
     return await get_owned_deck(deck_id, current_user, session, with_cards=True)
+
+
+@router.patch("/{deck_id}", response_model=DeckPublic)
+async def update_deck(
+    deck_id: int,
+    deck_in: DeckUpdate,
+    current_user: CurrentUser,
+    session: SessionDep,
+) -> Deck:
+    deck = await get_owned_deck(deck_id, current_user, session)
+    for key, value in deck_in.model_dump(exclude_unset=True).items():
+        setattr(deck, key, value)
+    session.add(deck)
+    await session.commit()
+    await session.refresh(deck)
+    return deck
+
+
+@router.delete("/{deck_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_deck(deck_id: int, current_user: CurrentUser, session: SessionDep) -> None:
+    deck = await get_owned_deck(deck_id, current_user, session)
+    await session.delete(deck)
+    await session.commit()
