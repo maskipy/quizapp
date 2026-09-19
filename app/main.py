@@ -4,6 +4,7 @@ QuizApp API — entrypoint.
 """
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import auth, cards, decks
 
@@ -18,11 +19,9 @@ app.include_router(decks.router)
 app.include_router(cards.router)
 
 
-@app.get("/")
-def root():
-    return "Hello Lord"
-
-
 @app.get("/health")
 def health_check() -> dict[str, str]:
     return {"status": "ok"}
+
+
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
