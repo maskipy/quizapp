@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1e2235">
+  <title>Deck -- CPGE Flashcards</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <a href="dashboard.html" class="btn btn-ghost back-btn">&larr; Dashboard</a>
+      <button type="button" id="logout-btn" class="btn btn-ghost">Log out</button>
+    </header>
+
+    <main class="container">
+      <div id="deck-loading" class="muted">Loading deck...</div>
+      <div id="load-error" class="error-box hidden"></div>
+
+      <div id="page-content" class="hidden">
+
+        <section class="panel" id="deck-info-panel">
+          <div class="deck-header">
+            <div>
+              <h2 id="deck-title-display"></h2>
+              <p id="deck-desc-display" class="muted"></p>
+            </div>
+            <div class="deck-actions">
+              <button type="button" id="study-btn" class="btn btn-primary">Study this deck</button>
+              <button type="button" id="edit-deck-btn" class="btn btn-secondary">Edit</button>
+              <button type="button" id="delete-deck-btn" class="btn btn-danger">Delete</button>
+            </div>
+          </div>
+
+          <div id="deck-action-error" class="error-box hidden"></div>
+
+          <div class="collapsible" id="edit-deck-collapsible">
+            <div class="collapsible-inner">
+              <form id="edit-deck-form" class="inline-form">
+                <input type="text" id="edit-deck-title" placeholder="Deck title" required maxlength="200">
+                <input type="text" id="edit-deck-desc" placeholder="Description (optional)">
+                <div class="form-row-buttons">
+                  <button type="submit" class="btn btn-primary">Save changes</button>
+                  <button type="button" id="cancel-edit-deck" class="btn btn-ghost">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Add a card</h2>
+          <form id="create-card-form" class="stacked-form">
+            <label for="new-card-question">Question</label>
+            <textarea id="new-card-question" rows="2" required maxlength="2000"></textarea>
+
+            <label for="new-card-answer">Answer</label>
+            <textarea id="new-card-answer" rows="2" required maxlength="2000"></textarea>
+
+            <button type="submit" class="btn btn-primary" id="create-card-submit">Add card</button>
+          </form>
+          <div id="card-error" class="error-box hidden"></div>
+        </section>
+
+        <section class="panel">
+          <h2>Cards (<span id="card-count">0</span>)</h2>
+          <div id="cards-empty" class="muted hidden">No cards yet. Add your first question above.</div>
+          <div id="cards-list" class="cards-list"></div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="api.js"></script>
+  <script src="deck.js"></script>
+</body>
+</html>

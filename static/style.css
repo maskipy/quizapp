@@ -1,0 +1,735 @@
+/* ===================================================================
+   CPGE Flashcards -- stylesheet
+   A quiet, paper-inspired palette with the motion concentrated in a
+   few places that actually mean something: flipping a card, opening
+   an edit form, confirming something just changed.
+   =================================================================== */
+
+:root {
+  --paper: #f6f6f3;
+  --paper-card: #ffffff;
+
+  --ink: #1e2235;
+  --ink-soft: #565c72;
+  --ink-faint: #9297a8;
+
+  --border: #e3e4e2;
+  --hover-bg: #eef0eb;
+
+  --red: #b7352a;
+  --red-dark: #8f2a21;
+  --red-bg: #fbeae8;
+
+  --green: #2f6b4f;
+  --green-bg: #e7f2ec;
+
+  --radius-sm: 6px;
+  --radius: 10px;
+
+  --shadow-card: 0 14px 34px rgba(30, 34, 53, 0.16);
+
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --ease: cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  animation: pageFade 0.3s ease;
+}
+
+@keyframes pageFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+h1, h2, h3 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  color: var(--ink);
+}
+
+p {
+  margin: 0 0 0.75rem 0;
+}
+
+a {
+  color: var(--ink);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.muted {
+  color: var(--ink-faint);
+}
+
+:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------
+   Reusable entrance animations
+   --------------------------------------------------------------- */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOutDown {
+  to { opacity: 0; transform: translateY(6px); }
+}
+
+.anim-fade-in {
+  animation: fadeInUp 0.22s var(--ease) both;
+}
+
+.anim-fade-out {
+  animation: fadeOutDown 0.15s var(--ease) both;
+}
+
+/* A brief, quiet highlight for a row that was just created or edited --
+   feedback that answers the action that caused it, not decoration. */
+@keyframes flashAdd {
+  0% { background-color: rgba(183, 53, 42, 0.1); }
+  100% { background-color: transparent; }
+}
+
+@keyframes flashUpdate {
+  0% { background-color: rgba(47, 107, 79, 0.12); }
+  100% { background-color: transparent; }
+}
+
+.just-added {
+  animation: flashAdd 1s ease;
+}
+
+.just-updated {
+  animation: flashUpdate 1s ease;
+}
+
+/* ---------------------------------------------------------------
+   Buttons
+   --------------------------------------------------------------- */
+
+.btn {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.65rem 1.1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 0.08s ease, background 0.15s ease, opacity 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-primary {
+  background: var(--ink);
+  color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #2b3050;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--hover-bg);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-soft);
+  border-color: transparent;
+  padding: 0.5rem 0.75rem;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  color: var(--ink);
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--red-dark);
+  border-color: var(--red-bg);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: var(--red-bg);
+}
+
+.btn-lg {
+  padding: 0.85rem 1.75rem;
+  font-size: 1.05rem;
+}
+
+.btn-sm {
+  padding: 0.4rem 0.7rem;
+  font-size: 0.85rem;
+}
+
+.back-btn {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ---------------------------------------------------------------
+   Forms
+   --------------------------------------------------------------- */
+
+label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin: 0.6rem 0 0.3rem 0;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--ink);
+  transition: border-color 0.15s ease;
+}
+
+input:focus,
+textarea:focus {
+  outline: 2px solid var(--red);
+  outline-offset: 1px;
+  border-color: var(--red);
+}
+
+textarea {
+  resize: vertical;
+  font-family: inherit;
+}
+
+.auth-form,
+.stacked-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-form .btn,
+.stacked-form .btn {
+  margin-top: 1rem;
+  align-self: flex-start;
+}
+
+.inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.inline-form input {
+  flex: 1 1 200px;
+}
+
+.form-row-buttons {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+}
+
+/* Smooth open/close for edit forms -- a CSS grid trick that animates
+   to and from "auto" height without any JS measuring. */
+.collapsible {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.28s var(--ease);
+}
+
+.collapsible.open {
+  grid-template-rows: 1fr;
+}
+
+.collapsible-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.collapsible-inner > .inline-form,
+.collapsible-inner > .stacked-form {
+  padding-top: 0.75rem;
+}
+
+/* ---------------------------------------------------------------
+   Error / message boxes
+   --------------------------------------------------------------- */
+
+.error-box {
+  background: var(--red-bg);
+  color: var(--red-dark);
+  border-left: 3px solid var(--red);
+  padding: 0.65rem 0.9rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  margin: 0.75rem 0;
+}
+
+/* ---------------------------------------------------------------
+   Shell / layout
+   --------------------------------------------------------------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.9rem 1.1rem;
+  background: var(--paper-card);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.brand::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 1.2em;
+  background: var(--red);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.user-greeting {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  display: none;
+}
+
+.container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 1.4rem 1.1rem 3rem 1.1rem;
+}
+
+.panel {
+  background: var(--paper-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.3rem;
+  margin-bottom: 1.4rem;
+}
+
+.panel h2 {
+  font-size: 1.05rem;
+}
+
+@media (min-width: 640px) {
+  .user-greeting {
+    display: inline;
+  }
+}
+
+/* ---------------------------------------------------------------
+   Auth page
+   --------------------------------------------------------------- */
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.auth-card {
+  background: var(--paper-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.85rem;
+  width: 100%;
+  max-width: 380px;
+}
+
+.app-title {
+  font-size: 1.3rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.app-title::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 1.1em;
+  background: var(--red);
+  border-radius: 2px;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.1rem;
+}
+
+.tab-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 0.6rem 0.4rem;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink-faint);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.tab-btn.active {
+  color: var(--ink);
+  border-bottom-color: var(--red);
+}
+
+.auth-form {
+  position: relative;
+}
+
+/* ---------------------------------------------------------------
+   Dashboard: deck list
+   --------------------------------------------------------------- */
+
+.deck-grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.deck-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  padding: 0.9rem 0.3rem;
+  border-bottom: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.deck-card:last-child {
+  border-bottom: none;
+}
+
+.deck-card:hover,
+.deck-card:focus-visible {
+  background: var(--hover-bg);
+  transform: translateX(4px);
+}
+
+.deck-card h3 {
+  font-size: 1.05rem;
+  margin-bottom: 0.2rem;
+}
+
+.deck-card p {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  margin-bottom: 0.3rem;
+}
+
+.deck-meta {
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+}
+
+.page-info {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+/* ---------------------------------------------------------------
+   Deck view
+   --------------------------------------------------------------- */
+
+.deck-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border-radius: var(--radius-sm);
+}
+
+.deck-header h2 {
+  font-size: 1.3rem;
+  word-break: break-word;
+}
+
+.deck-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cards-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-item {
+  border-bottom: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: background 0.15s ease;
+}
+
+.card-item:last-child {
+  border-bottom: none;
+}
+
+.card-view {
+  padding: 0.85rem 0.3rem;
+}
+
+.card-field {
+  font-size: 0.95rem;
+  margin-bottom: 0.3rem;
+  word-break: break-word;
+}
+
+.card-label {
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+  margin-right: 0.3rem;
+}
+
+.card-q {
+  font-family: var(--font-serif);
+}
+
+.card-item-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.card-edit-form label {
+  margin-top: 0.5rem;
+}
+
+/* ---------------------------------------------------------------
+   Study mode -- the one place personality and motion get to lead
+   --------------------------------------------------------------- */
+
+.study-container {
+  max-width: 560px;
+}
+
+.study-progress {
+  margin: 0.5rem 0 1.5rem 0;
+}
+
+.progress-bar {
+  height: 5px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--red);
+  width: 0%;
+  transition: width 0.3s var(--ease);
+}
+
+.progress-text {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--ink-faint);
+  margin-top: 0.4rem;
+}
+
+.study-card {
+  perspective: 1600px;
+  margin-bottom: 1.75rem;
+}
+
+.study-card-inner {
+  position: relative;
+  width: 100%;
+  min-height: 240px;
+  transform-style: preserve-3d;
+  transition: transform 0.4s var(--ease);
+}
+
+.study-card-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.study-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background: var(--paper-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: 2rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+.study-face-front {
+  border-left: 3px solid var(--red);
+}
+
+.study-face-back {
+  transform: rotateY(180deg);
+  border-left: 3px solid var(--green);
+}
+
+.study-card-label {
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  margin-bottom: 0.5rem;
+}
+
+.study-card-text {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  line-height: 1.55;
+  color: var(--ink);
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.study-controls {
+  display: flex;
+  justify-content: center;
+}
+
+.study-controls .btn {
+  width: 100%;
+  max-width: 320px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2.5rem 1rem;
+}
+
+.empty-state h2 {
+  font-size: 1.3rem;
+}
+
+.empty-state .form-row-buttons {
+  justify-content: center;
+}
+
+#study-empty:not(.hidden),
+#study-complete:not(.hidden) {
+  animation: fadeInUp 0.4s var(--ease) both;
+}
+
+#study-complete h2::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--green);
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+/* ---------------------------------------------------------------
+   Small screens
+   --------------------------------------------------------------- */
+
+@media (max-width: 380px) {
+  .deck-actions .btn {
+    flex: 1 1 auto;
+  }
+
+  .study-face {
+    padding: 1.5rem 1.25rem;
+  }
+}

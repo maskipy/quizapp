@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1e2235">
+  <title>CPGE Flashcards -- Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <span class="brand">CPGE Flashcards</span>
+      <div class="topbar-right">
+        <span id="user-greeting" class="user-greeting"></span>
+        <button type="button" id="logout-btn" class="btn btn-ghost">Log out</button>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="panel">
+        <h2>Create a new deck</h2>
+        <form id="create-deck-form" class="inline-form">
+          <input type="text" id="new-deck-title" placeholder="Deck title" required maxlength="200">
+          <input type="text" id="new-deck-desc" placeholder="Description (optional)">
+          <button type="submit" class="btn btn-primary" id="create-deck-submit">Create deck</button>
+        </form>
+        <div id="dashboard-error" class="error-box hidden"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Your decks</h2>
+        <div id="decks-loading" class="muted">Loading decks...</div>
+        <div id="decks-empty" class="muted hidden">
+          No decks yet. Create your first one above to start building your question bank.
+        </div>
+        <div id="decks-list" class="deck-grid"></div>
+        <div id="pagination" class="pagination hidden">
+          <button type="button" id="prev-page" class="btn btn-secondary btn-sm">&larr; Prev</button>
+          <span id="page-info" class="page-info"></span>
+          <button type="button" id="next-page" class="btn btn-secondary btn-sm">Next &rarr;</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="api.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

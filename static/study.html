@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1e2235">
+  <title>Study -- CPGE Flashcards</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <a href="dashboard.html" id="back-to-deck" class="btn btn-ghost back-btn">&larr; Back to deck</a>
+      <span id="study-deck-title" class="brand"></span>
+    </header>
+
+    <main class="container study-container">
+      <div id="study-loading" class="muted">Loading...</div>
+      <div id="study-error" class="error-box hidden"></div>
+
+      <div id="study-empty" class="empty-state hidden">
+        <h2>Nothing to study yet</h2>
+        <p class="muted">Add a few cards to this deck before you start studying.</p>
+        <a href="dashboard.html" id="empty-back-btn" class="btn btn-primary">Go to deck</a>
+      </div>
+
+      <div id="study-content" class="hidden">
+        <div class="study-progress">
+          <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+          <span id="progress-text" class="progress-text"></span>
+        </div>
+
+        <div class="study-card">
+          <div class="study-card-inner" id="study-card-inner">
+            <div class="study-face study-face-front">
+              <div class="study-card-label">Question</div>
+              <div id="study-question" class="study-card-text"></div>
+            </div>
+            <div class="study-face study-face-back">
+              <div class="study-card-label">Answer</div>
+              <div id="study-answer" class="study-card-text"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="study-controls">
+          <button type="button" id="show-answer-btn" class="btn btn-primary btn-lg">Show answer</button>
+          <button type="button" id="next-btn" class="btn btn-primary btn-lg hidden">Next</button>
+        </div>
+      </div>
+
+      <div id="study-complete" class="empty-state hidden">
+        <h2>Deck complete</h2>
+        <p id="study-complete-summary" class="muted"></p>
+        <div class="form-row-buttons">
+          <button type="button" id="restart-btn" class="btn btn-primary">Restart</button>
+          <a href="dashboard.html" id="complete-back-btn" class="btn btn-secondary">Back to deck</a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="api.js"></script>
+  <script src="study.js"></script>
+</body>
+</html>

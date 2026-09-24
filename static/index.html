@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1e2235">
+  <title>CPGE Flashcards -- Log in</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="auth-page">
+    <div class="auth-card">
+      <h1 class="app-title">CPGE Flashcards</h1>
+
+      <div class="tabs">
+        <button type="button" class="tab-btn active" id="tab-login">Log in</button>
+        <button type="button" class="tab-btn" id="tab-register">Register</button>
+      </div>
+
+      <div id="error-box" class="error-box hidden"></div>
+
+      <form id="login-form" class="auth-form">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" required autocomplete="username">
+
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" required autocomplete="current-password">
+
+        <button type="submit" class="btn btn-primary" id="login-submit">Log in</button>
+      </form>
+
+      <form id="register-form" class="auth-form hidden">
+        <label for="register-name">Full name (optional)</label>
+        <input type="text" id="register-name" autocomplete="name">
+
+        <label for="register-email">Email</label>
+        <input type="email" id="register-email" required autocomplete="username">
+
+        <label for="register-password">Password</label>
+        <input type="password" id="register-password" required autocomplete="new-password" minlength="6">
+
+        <button type="submit" class="btn btn-primary" id="register-submit">Create account</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="api.js"></script>
+  <script src="auth.js"></script>
+</body>
+</html>
