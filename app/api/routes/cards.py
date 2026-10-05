@@ -9,7 +9,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.api.deps import CurrentUser, get_owned_deck
 from app.db.session import SessionDep
-from app.models.deck import Card, CardCreate, CardPublic
+from app.models.deck import Card, CardCreate, CardPublic, CardUpdate
 from app.models.user import User
 
 router = APIRouter(prefix="/decks/{deck_id}/cards", tags=["cards"])
@@ -22,18 +22,12 @@ class CardPage(SQLModel):
     offset: int
 
 
-class CardUpdate(SQLModel):
-    question: str | None = None
-    answer: str | None = None
-
-
 async def get_owned_card(
     deck_id: int, card_id: int, current_user: User, session: AsyncSession
 ) -> Card:
-    """
-    confirm the deck belongs to this user first, then confirm the card
-    actually belongs to *that* deck.
-    """
+    """Same 404-hides-everything philosophy as get_owned_deck: confirm the deck belongs
+    to this user first, then confirm the card actually belongs to *that* deck -- a card
+    from a different deck (even one you own) 404s too."""
     await get_owned_deck(deck_id, current_user, session)
     card = await session.get(Card, card_id)
     if card is None or card.deck_id != deck_id:
@@ -72,7 +66,7 @@ async def list_cards(
         await session.exec(
             select(Card)
             .where(Card.deck_id == deck_id)
-            .order_by(Card.created_at.desc())
+            .order_by(Card.created_at.desc(), Card.id.desc())
             .offset(offset)
             .limit(limit)
         )

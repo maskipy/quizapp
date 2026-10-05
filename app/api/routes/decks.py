@@ -8,7 +8,7 @@ from sqlmodel import SQLModel, select
 
 from app.api.deps import CurrentUser, get_owned_deck
 from app.db.session import SessionDep
-from app.models.deck import CardPublic, Deck, DeckCreate, DeckPublic
+from app.models.deck import CardPublic, Deck, DeckCreate, DeckPublic, DeckUpdate
 
 router = APIRouter(prefix="/decks", tags=["decks"])
 
@@ -22,11 +22,6 @@ class DeckPage(SQLModel):
 
 class DeckWithCards(DeckPublic):
     cards: list[CardPublic]
-
-
-class DeckUpdate(SQLModel):
-    title: str | None = None
-    description: str | None = None
 
 
 @router.post("", response_model=DeckPublic, status_code=status.HTTP_201_CREATED)
@@ -52,7 +47,9 @@ async def list_my_decks(
         await session.exec(
             select(Deck)
             .where(Deck.owner_id == current_user.id)
-            .order_by(Deck.created_at.desc())
+            # id is the tie-breaker: without it, two decks with the same timestamp can
+            # swap places between requests, so a deck could repeat or vanish across pages.
+            .order_by(Deck.created_at.desc(), Deck.id.desc())
             .offset(offset)
             .limit(limit)
         )
