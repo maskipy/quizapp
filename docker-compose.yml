@@ -6,10 +6,11 @@ services:
       POSTGRES_PASSWORD: devpassword
       POSTGRES_DB: quizapp
     ports:
-      - "5430:5432"
+      - "127.0.0.1:5430:5432"
     volumes:
       - pgdata:/var/lib/postgresql
 
 volumes:
   pgdata:
     name: quizapp_pgdata
+
