@@ -6,8 +6,9 @@ from fastapi import APIRouter, Query, status
 from sqlalchemy import func
 from sqlmodel import SQLModel, select
 
-from app.api.deps import CurrentUser, get_owned_deck
+from app.api.deps import CurrentUser, get_owned_deck, get_readable_deck
 from app.db.session import SessionDep
+from app.models.classroom import ClassDeck, Classroom, DeckShare
 from app.models.deck import CardPublic, Deck, DeckCreate, DeckPublic, DeckUpdate
 
 router = APIRouter(prefix="/decks", tags=["decks"])
@@ -59,7 +60,25 @@ async def list_my_decks(
 
 @router.get("/{deck_id}", response_model=DeckWithCards)
 async def get_deck(deck_id: int, current_user: CurrentUser, session: SessionDep) -> Deck:
-    return await get_owned_deck(deck_id, current_user, session, with_cards=True)
+    # Reading: the owner, or a member of a class this deck is shared with.
+    return await get_readable_deck(deck_id, current_user, session, with_cards=True)
+
+
+@router.get("/{deck_id}/classes", response_model=list[DeckShare])
+async def list_deck_shares(
+    deck_id: int, current_user: CurrentUser, session: SessionDep
+) -> list[DeckShare]:
+    """Which classes this deck is shared with. Owner only."""
+    await get_owned_deck(deck_id, current_user, session)
+    rows = (
+        await session.exec(
+            select(Classroom.id, Classroom.name, ClassDeck.shared_at)
+            .join(ClassDeck, ClassDeck.class_id == Classroom.id)
+            .where(ClassDeck.deck_id == deck_id)
+            .order_by(ClassDeck.shared_at.desc(), Classroom.id.desc())
+        )
+    ).all()
+    return [DeckShare(class_id=cid, name=name, shared_at=at) for cid, name, at in rows]
 
 
 @router.patch("/{deck_id}", response_model=DeckPublic)

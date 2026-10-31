@@ -7,7 +7,7 @@ from sqlalchemy import func
 from sqlmodel import SQLModel, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.api.deps import CurrentUser, get_owned_deck
+from app.api.deps import CurrentUser, get_owned_deck, get_readable_deck
 from app.db.session import SessionDep
 from app.models.deck import Card, CardCreate, CardPublic, CardUpdate
 from app.models.user import User
@@ -59,7 +59,7 @@ async def list_cards(
     limit: int = Query(20, ge=1, le=100),
     offset: int = Query(0, ge=0),
 ) -> CardPage:
-    await get_owned_deck(deck_id, current_user, session)
+    await get_readable_deck(deck_id, current_user, session)  # reading: shared decks allowed
 
     total = (await session.exec(select(func.count(Card.id)).where(Card.deck_id == deck_id))).one()
     cards = (

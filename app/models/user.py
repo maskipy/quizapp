@@ -9,15 +9,18 @@ User models, following SQLModel's "multiple models" pattern:
 """
 
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from pydantic import EmailStr, field_validator
+from sqlalchemy import CheckConstraint
 from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.common import Name, TimestampColumn, utcnow
 
 if TYPE_CHECKING:
     from app.models.deck import Deck
+
+UserRole = Literal["student", "teacher"]
 
 
 class UserBase(SQLModel):
@@ -27,10 +30,14 @@ class UserBase(SQLModel):
 
 class User(UserBase, table=True):
     __tablename__ = "users"
+    __table_args__ = (CheckConstraint("role IN ('student', 'teacher')", name="ck_users_role"),)
 
     id: int | None = Field(default=None, primary_key=True)
     hashed_password: str
     is_active: bool = True
+    # Never settable through the API: UserCreate has no role field. Promotion to teacher
+    # happens only through the admin CLI (python -m app.cli set-role).
+    role: str = Field(default="student", sa_column_kwargs={"server_default": "student"})
     created_at: datetime = Field(default_factory=utcnow, sa_type=TimestampColumn)
 
     decks: list["Deck"] = Relationship(
@@ -56,4 +63,5 @@ class UserCreate(UserBase):
 class UserPublic(UserBase):
     id: int
     is_active: bool
+    role: UserRole
     created_at: datetime
