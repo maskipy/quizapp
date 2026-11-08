@@ -19,6 +19,29 @@
     </header>
 
     <main class="container">
+      <section class="panel" id="classes-panel">
+        <h2>Your classes</h2>
+        <div id="classes-loading" class="muted">Loading classes...</div>
+        <div id="classes-empty" class="muted hidden">
+          You're not in any class yet. Ask your teacher for a join code and enter it below.
+        </div>
+        <div id="classes-list" class="deck-grid"></div>
+
+        <h3 class="panel-subtitle">Join a class</h3>
+        <form id="join-class-form" class="inline-form">
+          <input type="text" id="join-code" placeholder="Join code (e.g. ABCD-2345)" required maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false">
+          <button type="submit" class="btn btn-primary" id="join-class-submit">Join</button>
+        </form>
+
+        <div id="create-class-section" class="hidden">
+          <h3 class="panel-subtitle">Create a class</h3>
+          <form id="create-class-form" class="inline-form">
+            <input type="text" id="new-class-name" placeholder="Class name (e.g. MP2I 2026)" required maxlength="100">
+            <button type="submit" class="btn btn-primary" id="create-class-submit">Create class</button>
+          </form>
+        </div>
+        <div id="classes-error" class="error-box hidden"></div>
+      </section>
       <section class="panel">
         <h2>Create a new deck</h2>
         <form id="create-deck-form" class="inline-form">

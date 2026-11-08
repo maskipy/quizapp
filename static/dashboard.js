@@ -6,6 +6,7 @@ requireAuth();
 
 const state = { limit: 20, offset: 0, total: 0 };
 
+let currentUser = null;
 const decksLoading = document.getElementById("decks-loading");
 const decksEmpty = document.getElementById("decks-empty");
 const decksList = document.getElementById("decks-list");
@@ -54,7 +55,10 @@ function flashElement(selector, className) {
 async function loadUser() {
   try {
     const user = await apiFetch("/auth/me");
+    currentUser = user;
     userGreeting.textContent = user.full_name ? `Hi, ${user.full_name}` : user.email;
+    // Only teachers can create classes (the API enforces it; this just hides a useless form).
+    createClassSection.classList.toggle("hidden", user.role !== "teacher");
   } catch (err) {
     // A 401 here is already handled by apiFetch's redirect.
   }
@@ -167,5 +171,105 @@ document.getElementById("logout-btn").addEventListener("click", () => {
   window.location.href = "index.html";
 });
 
+/* ---------------------------------------------------------------
+   Classes: everyone can join one with a code; teachers can create them
+   --------------------------------------------------------------- */
+
+const classesLoading = document.getElementById("classes-loading");
+const classesEmpty = document.getElementById("classes-empty");
+const classesList = document.getElementById("classes-list");
+const classesError = document.getElementById("classes-error");
+const createClassSection = document.getElementById("create-class-section");
+
+function showClassesError(message) {
+  classesError.textContent = message;
+  classesError.classList.remove("hidden");
+}
+
+function clearClassesError() {
+  classesError.classList.add("hidden");
+}
+
+async function loadClasses() {
+  clearClassesError();
+  classesLoading.classList.remove("hidden");
+  classesEmpty.classList.add("hidden");
+  classesList.innerHTML = "";
+  try {
+    const classes = await apiFetch("/classes");
+    classesLoading.classList.add("hidden");
+    if (classes.length === 0) {
+      classesEmpty.classList.remove("hidden");
+      return;
+    }
+    renderClasses(classes);
+  } catch (err) {
+    classesLoading.classList.add("hidden");
+    showClassesError(err.message);
+  }
+}
+
+function renderClasses(classes) {
+  classesList.innerHTML = classes
+    .map(
+      (c) => `
+    <a class="deck-card class-card" data-class-id="${escapeHtml(c.id)}" href="class.html?id=${encodeURIComponent(c.id)}">
+      <h3>${escapeHtml(c.name)}<span class="badge ${c.is_owner ? "badge-teacher" : ""}">${c.is_owner ? "Teacher" : "Student"}</span></h3>
+      <span class="deck-meta">${c.member_count} student${c.member_count === 1 ? "" : "s"}</span>
+    </a>
+  `
+    )
+    .join("");
+}
+
+document.getElementById("join-class-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  clearClassesError();
+
+  const input = document.getElementById("join-code");
+  const submitBtn = document.getElementById("join-class-submit");
+  const code = input.value.trim();
+  if (!code) return;
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Joining...";
+  try {
+    const joined = await apiFetch("/classes/join", { method: "POST", body: { join_code: code } });
+    input.value = "";
+    await loadClasses();
+    flashElement(`.class-card[data-class-id="${joined.id}"]`, "just-added");
+  } catch (err) {
+    showClassesError(err.message);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Join";
+  }
+});
+
+document.getElementById("create-class-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  clearClassesError();
+
+  const input = document.getElementById("new-class-name");
+  const submitBtn = document.getElementById("create-class-submit");
+  const name = input.value.trim();
+  if (!name) return;
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Creating...";
+  try {
+    const created = await apiFetch("/classes", { method: "POST", body: { name } });
+    input.value = "";
+    await loadClasses();
+    flashElement(`.class-card[data-class-id="${created.id}"]`, "just-added");
+  } catch (err) {
+    showClassesError(err.message);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Create class";
+  }
+});
+
 loadUser();
+loadClasses();
 loadDecks();

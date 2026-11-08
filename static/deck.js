@@ -11,6 +11,9 @@ if (!deckId) {
 }
 
 let currentDeck = null;
+let me = null; // the logged-in user, from /auth/me
+let isOwner = false; // owners get edit controls; everyone else gets a read-only deck
+let sharesLoaded = false;
 
 const loadingEl = document.getElementById("deck-loading");
 const loadErrorEl = document.getElementById("load-error");
@@ -72,11 +75,17 @@ function clearCardError() {
 async function loadDeck() {
   loadErrorEl.classList.add("hidden");
   try {
+    if (!me) me = await apiFetch("/auth/me");
     const deck = await apiFetch(`/decks/${encodeURIComponent(deckId)}`);
     currentDeck = deck;
+    isOwner = deck.owner_id === me.id;
     loadingEl.classList.add("hidden");
     pageContent.classList.remove("hidden");
     renderDeck();
+    if (isOwner && !sharesLoaded) {
+      sharesLoaded = true;
+      loadShares();
+    }
   } catch (err) {
     if (err.status === 404) {
       showLoadError("This deck isn't available. It may have been deleted, or it belongs to another account.");
@@ -92,7 +101,76 @@ function renderDeck() {
   descDisplay.textContent = currentDeck.description || "No description";
   editTitleInput.value = currentDeck.title;
   editDescInput.value = currentDeck.description || "";
+  applyOwnership();
   renderCards();
+}
+
+/** Students (anyone who isn't the owner) see the deck read-only: no edit, delete, or add. */
+function applyOwnership() {
+  document.getElementById("readonly-banner").classList.toggle("hidden", isOwner);
+  document.getElementById("edit-deck-btn").classList.toggle("hidden", !isOwner);
+  document.getElementById("delete-deck-btn").classList.toggle("hidden", !isOwner);
+  document.getElementById("add-card-panel").classList.toggle("hidden", !isOwner);
+}
+
+function showShareError(message) {
+  const el = document.getElementById("share-error");
+  el.textContent = message;
+  el.classList.remove("hidden");
+}
+
+/** Tick a class to share this deck with it; untick to stop. Owners only. */
+async function loadShares() {
+  const panel = document.getElementById("share-panel");
+  const listEl = document.getElementById("share-list");
+  const hintEl = document.getElementById("share-hint");
+  try {
+    const classes = (await apiFetch("/classes")).filter((c) => c.is_owner);
+    if (classes.length === 0) {
+      if (me.role === "teacher") {
+        panel.classList.remove("hidden");
+        hintEl.textContent =
+          "You don't have a class yet. Create one on your dashboard, then come back to share this deck.";
+      }
+      return;
+    }
+    const shared = await apiFetch(`/decks/${encodeURIComponent(deckId)}/classes`);
+    const sharedIds = new Set(shared.map((s) => s.class_id));
+    panel.classList.remove("hidden");
+    hintEl.textContent = "Students in a class you tick can study this deck, read-only.";
+    listEl.innerHTML = classes
+      .map(
+        (c) => `
+      <label class="share-item">
+        <input type="checkbox" data-class-id="${escapeHtml(c.id)}" ${sharedIds.has(c.id) ? "checked" : ""}>
+        <span>${escapeHtml(c.name)}</span>
+      </label>
+    `
+      )
+      .join("");
+
+    listEl.querySelectorAll("input[type=checkbox]").forEach((box) => {
+      box.addEventListener("change", async () => {
+        const classId = box.dataset.classId;
+        box.disabled = true;
+        document.getElementById("share-error").classList.add("hidden");
+        try {
+          await apiFetch(
+            `/classes/${encodeURIComponent(classId)}/decks/${encodeURIComponent(deckId)}`,
+            { method: box.checked ? "PUT" : "DELETE" }
+          );
+        } catch (err) {
+          box.checked = !box.checked; // the change didn't happen, so undo the tick
+          showShareError(err.message);
+        } finally {
+          box.disabled = false;
+        }
+      });
+    });
+  } catch (err) {
+    // Sharing is optional UI; never let it break the deck page itself.
+    console.error(err);
+  }
 }
 
 function renderCards() {
@@ -101,6 +179,9 @@ function renderCards() {
   studyBtn.disabled = cards.length === 0;
 
   if (cards.length === 0) {
+    cardsEmptyEl.textContent = isOwner
+      ? "No cards yet. Add your first question above."
+      : "This deck has no cards yet.";
     cardsEmptyEl.classList.remove("hidden");
     cardsListEl.innerHTML = "";
     return;
@@ -114,12 +195,18 @@ function renderCards() {
       <div class="card-view">
         <div class="card-field"><span class="card-label">Q</span><span class="card-q">${escapeHtml(card.question)}</span></div>
         <div class="card-field"><span class="card-label">A</span><span class="card-a">${escapeHtml(card.answer)}</span></div>
-        <div class="card-item-actions">
+        ${
+          isOwner
+            ? `<div class="card-item-actions">
           <button type="button" class="btn btn-secondary btn-sm edit-card-btn">Edit</button>
           <button type="button" class="btn btn-danger btn-sm delete-card-btn">Delete</button>
-        </div>
+        </div>`
+            : ""
+        }
       </div>
-      <div class="collapsible card-edit-collapsible">
+      ${
+        isOwner
+          ? `<div class="collapsible card-edit-collapsible">
         <div class="collapsible-inner">
           <form class="card-edit-form stacked-form">
             <label>Question</label>
@@ -132,11 +219,15 @@ function renderCards() {
             </div>
           </form>
         </div>
-      </div>
+      </div>`
+          : ""
+      }
     </div>
   `
     )
     .join("");
+
+  if (!isOwner) return; // read-only: nothing to wire up
 
   cardsListEl.querySelectorAll(".card-item").forEach((itemEl) => {
     const cardId = itemEl.dataset.cardId;

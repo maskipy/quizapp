@@ -21,6 +21,10 @@
 
       <div id="page-content" class="hidden">
 
+        <div id="readonly-banner" class="notice hidden">
+          This deck was shared with you by its owner. You can study it, but not change it.
+        </div>
+
         <section class="panel" id="deck-info-panel">
           <div class="deck-header">
             <div>
@@ -50,7 +54,14 @@
           </div>
         </section>
 
-        <section class="panel">
+        <section class="panel hidden" id="share-panel">
+          <h2>Share with your classes</h2>
+          <p id="share-hint" class="muted"></p>
+          <div id="share-list"></div>
+          <div id="share-error" class="error-box hidden"></div>
+        </section>
+
+        <section class="panel" id="add-card-panel">
           <h2>Add a card</h2>
           <form id="create-card-form" class="stacked-form">
             <label for="new-card-question">Question</label>

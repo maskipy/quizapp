@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1e2235">
+  <title>Class -- CPGE Flashcards</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <a href="dashboard.html" class="btn btn-ghost back-btn">&larr; Dashboard</a>
+      <button type="button" id="logout-btn" class="btn btn-ghost">Log out</button>
+    </header>
+
+    <main class="container">
+      <div id="class-loading" class="muted">Loading class...</div>
+      <div id="class-load-error" class="error-box hidden"></div>
+
+      <div id="class-content" class="hidden">
+
+        <section class="panel">
+          <div class="deck-header">
+            <div>
+              <h2 id="class-name"></h2>
+              <p id="class-meta" class="muted"></p>
+            </div>
+            <div class="deck-actions">
+              <button type="button" id="leave-class-btn" class="btn btn-secondary hidden">Leave class</button>
+              <button type="button" id="delete-class-btn" class="btn btn-danger hidden">Delete class</button>
+            </div>
+          </div>
+
+          <div id="join-code-box" class="join-code-box hidden">
+            <span class="muted">Join code</span>
+            <strong id="join-code-display" class="join-code"></strong>
+            <button type="button" id="copy-code-btn" class="btn btn-secondary btn-sm">Copy</button>
+          </div>
+
+          <div id="class-action-error" class="error-box hidden"></div>
+        </section>
+
+        <section class="panel">
+          <h2>Decks shared with this class (<span id="shared-count">0</span>)</h2>
+          <div id="shared-empty" class="muted hidden"></div>
+          <div id="shared-list"></div>
+          <p id="shared-note" class="muted hidden"></p>
+        </section>
+
+        <section class="panel hidden" id="members-panel">
+          <h2>Students (<span id="member-count">0</span>)</h2>
+          <div id="members-empty" class="muted hidden">No students yet. Give them the join code above.</div>
+          <div id="members-list"></div>
+          <p id="members-note" class="muted hidden"></p>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="api.js"></script>
+  <script src="class.js"></script>
+</body>
+</html>
